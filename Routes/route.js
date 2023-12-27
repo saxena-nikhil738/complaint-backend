@@ -1,6 +1,5 @@
 import express from "express";
 import { collection, userauth } from "../models/db.js";
-import JWT from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import { complaintData } from "../models/complaint-model.js";
@@ -48,12 +47,9 @@ router.post("/login", async (req, res) => {
     const match = await bcrypt.compare(password, check.password);
     if (match) {
       const token = await check.generateAuthToken();
-      res.cookie("jwtoken", token, {
-        expires: new Date(Date.now() + 25892000000),
-        httpOnly: true,
-      });
+      check.token = token;
       console.log(token);
-      res.json(check);
+      res.send(check);
     } else {
       res.json("Password incorrect");
     }
@@ -62,11 +58,11 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/logout", (req, res) => {
-  console.log("cookie cleared");
-  res.clearCookie("token");
-  res.json({ message: "Logout successful" });
-});
+// router.post("/logout", (req, res) => {
+//   console.log("cookie cleared");
+//   res.clearCookie("token");
+//   res.json({ message: "Logout successful" });
+// });
 
 router.post("/createcomplaint", async (req, res) => {
   try {
@@ -78,10 +74,10 @@ router.post("/createcomplaint", async (req, res) => {
 });
 
 router.get("/allcomplaint", async (req, res) => {
-  console.log("hii");
+  // console.log("hii");
   try {
     const info = await complaintData.find();
-    console.log(info);
+    // console.log(info);
     res.json(info);
   } catch (err) {
     console.error(err);
@@ -89,18 +85,53 @@ router.get("/allcomplaint", async (req, res) => {
   }
   //console.log(res.cookies);
 });
+router.get("/pending", async (req, res) => {
+  // console.log("hii");
+  try {
+    const info = await complaintData.find();
+    // console.log(info);
+    res.json(info);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+  //console.log(res.cookies);
+});
+router.get("/processing", async (req, res) => {
+  // console.log("hii");
+  try {
+    const info = await complaintData.find();
+    // console.log(info);
+    res.json(info);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+  //console.log(res.cookies);
+});
+router.get(`/rejected`, async (req, res) => {
+  // console.log("hii");
+  try {
+    const info = await complaintData.find({ status: "Rejected" });
+    // console.log(info);
+    res.status(200).json(info);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+  //console.log(res.cookies);
+});
 
-router.get("/solvedcomplaint", async (req, res) => {
+router.get(`/solved`, async (req, res) => {
   console.log("hii");
   try {
     const info = await complaintData.find({ status: "Approved" });
     console.log(info);
-    return res.json(info);
+    res.send(info);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
   }
-  //console.log(res.cookies);
 });
 
 router.put("/updatedstatus", async (req, res) => {
@@ -114,7 +145,8 @@ router.put("/updatedstatus", async (req, res) => {
       }
     )
     .then((result) => {
-      console.log(result);
+      // console.log(result);
+      console.log("updated");
     })
     .catch((e) => console.log(e));
 });
@@ -131,6 +163,7 @@ router.put("/noteadded", async (req, res) => {
     )
     .then((result) => {
       console.log(result);
+      console.log("added");
     })
     .catch((e) => console.log(e));
 });

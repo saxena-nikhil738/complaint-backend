@@ -3,7 +3,6 @@ import cors from "cors";
 import { collection } from "./models/db.js";
 import mongoose from "mongoose";
 import router from "./Routes/route.js";
-import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import path from "path";
@@ -13,7 +12,6 @@ const __dirname = path.resolve();
 const app = express();
 app.use(express.json());
 
-app.use(cookieParser());
 dotenv.config();
 app.use(cors());
 app.use(bodyParser.json({ extended: true }));
