@@ -88,7 +88,7 @@ router.get("/allcomplaint", async (req, res) => {
 router.get("/pending", async (req, res) => {
   // console.log("hii");
   try {
-    const info = await complaintData.find();
+    const info = await complaintData.find({ status: "pending" });
     // console.log(info);
     res.json(info);
   } catch (err) {
@@ -100,7 +100,7 @@ router.get("/pending", async (req, res) => {
 router.get("/processing", async (req, res) => {
   // console.log("hii");
   try {
-    const info = await complaintData.find();
+    const info = await complaintData.find({ status: "Proccessing" });
     // console.log(info);
     res.json(info);
   } catch (err) {
@@ -122,7 +122,7 @@ router.get(`/rejected`, async (req, res) => {
   //console.log(res.cookies);
 });
 
-router.get(`/solved`, async (req, res) => {
+router.get("/main/solved", async (req, res) => {
   console.log("hii");
   try {
     const info = await complaintData.find({ status: "Approved" });

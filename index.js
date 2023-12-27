@@ -29,7 +29,15 @@ mongoose
   .connect(
     `mongodb+srv://${USER}:${PASS}@cluster0.xewjt.mongodb.net/?retryWrites=true&w=majority`
   )
-  .then(console.log("server is running"))
+  .then(() => {
+    console.log("server is running");
+    console.log("Hello");
+    // return (
+    //   <>
+    //     <p>Hello</p>
+    //   </>
+    // );
+  })
   .catch((err) => {
     if (!err.data?.message) {
       console.log("Server error please try later!");
