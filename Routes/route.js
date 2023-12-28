@@ -100,7 +100,7 @@ router.get("/pending", async (req, res) => {
 router.get("/processing", async (req, res) => {
   // console.log("hii");
   try {
-    const info = await complaintData.find({ status: "Proccessing" });
+    const info = await complaintData.find({ status: "Processing" });
     // console.log(info);
     res.json(info);
   } catch (err) {
