@@ -48,7 +48,6 @@ router.post("/login", async (req, res) => {
     if (match) {
       const token = await check.generateAuthToken();
       check.token = token;
-      console.log(token);
       res.send(check);
     } else {
       res.json("Password incorrect");
@@ -58,11 +57,22 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// router.post("/logout", (req, res) => {
-//   console.log("cookie cleared");
-//   res.clearCookie("token");
-//   res.json({ message: "Logout successful" });
-// });
+router.post("/tokenmatch", async (req, res) => {
+  try {
+    const found = await userauth.findOne({ email: req.body.email });
+    if (!found) {
+      res.status(404).json({ success: false, message: "Email not found" });
+    } else {
+      if (req.body.enu === found.enum && req.body.jwt === found.token) {
+        res.status(200).json({ success: true, message: "successfull" });
+      } else {
+        res.status(400).json({ success: false, msg: "something wrong" });
+      }
+    }
+  } catch (error) {
+    res.status(405).json({ success: false, msg: "something wrong" });
+  }
+});
 
 router.post("/createcomplaint", async (req, res) => {
   try {
@@ -74,7 +84,6 @@ router.post("/createcomplaint", async (req, res) => {
 });
 
 router.get("/allcomplaint", async (req, res) => {
-  // console.log("hii");
   try {
     const info = await complaintData.find();
     // console.log(info);
@@ -100,7 +109,7 @@ router.get("/pending", async (req, res) => {
 router.get("/processing", async (req, res) => {
   // console.log("hii");
   try {
-    const info = await complaintData.find({ status: "Proccessing" });
+    const info = await complaintData.find({ status: "Processing" });
     // console.log(info);
     res.json(info);
   } catch (err) {
@@ -122,12 +131,11 @@ router.get(`/rejected`, async (req, res) => {
   //console.log(res.cookies);
 });
 
-router.get("/main/solved", async (req, res) => {
-  console.log("hii");
+router.get("/solved", async (req, res) => {
   try {
     const info = await complaintData.find({ status: "Approved" });
-    console.log(info);
-    res.send(info);
+
+    res.json(info);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -146,7 +154,6 @@ router.put("/updatedstatus", async (req, res) => {
     )
     .then((result) => {
       // console.log(result);
-      console.log("updated");
     })
     .catch((e) => console.log(e));
 });
@@ -161,10 +168,7 @@ router.put("/noteadded", async (req, res) => {
         },
       }
     )
-    .then((result) => {
-      console.log(result);
-      console.log("added");
-    })
+    .then((result) => {})
     .catch((e) => console.log(e));
 });
 
@@ -172,21 +176,13 @@ router.put("/dashboard/changePass", async (req, res) => {
   const oldPass = req.body.old;
   const newPassword = req.body.newPass;
   const email = req.body.email;
-  console.log(email);
-  console.log("object");
   const found = await userauth.findOne({ email: email });
-  console.log(found);
   if (found) {
-    console.log("found");
     try {
       const match = await bcrypt.compare(oldPass, found.password);
-      console.log(match);
 
       if (match) {
-        console.log("matched");
         const saltRounds = 10;
-        try {
-        } catch (error) {}
         const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
         await userauth
           .updateOne(
@@ -200,17 +196,26 @@ router.put("/dashboard/changePass", async (req, res) => {
           .then((result) => {
             res.json({
               success: true,
-              message: "Password changed",
+              message: "Password changed!",
             });
           })
-          .catch((e) => console.log(e));
+          .catch((e) => {
+            console.log(e);
+            res.json({ success: false, message: "Something went wrong!" });
+          });
+      } else {
+        res.json({
+          success: true,
+          message: "Password not matched!",
+        });
       }
     } catch (error) {
-      console.log(error);
-      res.status(404).send({ success: false, message: "Invalid password" });
+      res
+        .status(404)
+        .send({ success: false, message: "Something went wrong!" });
     }
   } else {
-    res.status(404).send({ success: false, message: "Email not matched" });
+    res.status(404).send({ success: false, message: "Email not matched!" });
   }
 });
 
